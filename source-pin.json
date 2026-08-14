@@ -1,5 +1,5 @@
 {
-  "repository": "rpiammocan/virtual-bartender",
+  "repository": "rpiammocan/virtual-bartender-casaos",
   "commit": "dc2ab7b4195fb4ce06f02c81bfca3445beeddd8d",
   "note": "Initial Windows source snapshot. Update deliberately; never track CasaOS main automatically."
 }
