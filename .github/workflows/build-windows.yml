@@ -34,14 +34,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: build-source/frontend/package-lock.json
 
       - name: Build frontend
         shell: pwsh
         run: |
           Push-Location build-source/frontend
-          npm ci
+          if (Test-Path package-lock.json) {
+            npm ci
+          } else {
+            npm install
+          }
           npm run build
           Pop-Location
           New-Item -ItemType Directory -Force runtime/frontend | Out-Null
