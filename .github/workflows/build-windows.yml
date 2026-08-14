@@ -1,0 +1,86 @@
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out Windows project
+        uses: actions/checkout@v4
+
+      - name: Read pinned source revision
+        id: source
+        shell: pwsh
+        run: |
+          $pin = Get-Content source-pin.json | ConvertFrom-Json
+          "repository=$($pin.repository)" >> $env:GITHUB_OUTPUT
+          "commit=$($pin.commit)" >> $env:GITHUB_OUTPUT
+
+      - name: Check out pinned Virtual Bartender source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.source.outputs.repository }}
+          ref: ${{ steps.source.outputs.commit }}
+          path: build-source
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: build-source/frontend/package-lock.json
+
+      - name: Build frontend
+        shell: pwsh
+        run: |
+          Push-Location build-source/frontend
+          npm ci
+          npm run build
+          Pop-Location
+          New-Item -ItemType Directory -Force runtime/frontend | Out-Null
+          Copy-Item build-source/frontend/dist/* runtime/frontend -Recurse -Force
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend build dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r build-source/backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build standalone backend
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force runtime/backend | Out-Null
+          Copy-Item desktop/backend_entry.py build-source/backend/backend_entry.py -Force
+          Push-Location build-source/backend
+          pyinstaller --noconfirm --clean --onefile --name virtual-bartender-backend --paths . --add-data "../data;data" backend_entry.py
+          Pop-Location
+          Copy-Item build-source/backend/dist/virtual-bartender-backend.exe runtime/backend/virtual-bartender-backend.exe -Force
+
+      - name: Install Electron dependencies
+        run: npm install
+
+      - name: Build Windows installer
+        run: npm run make
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: VirtualBartender-Windows
+          path: |
+            out/make/**/*.exe
+            out/make/**/*.nupkg
+            out/make/**/RELEASES
+          if-no-files-found: error
