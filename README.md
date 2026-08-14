@@ -2,7 +2,7 @@
 
 Windows desktop edition of Virtual Bartender.
 
-This repository is intentionally separate from the CasaOS/Docker application. Windows builds are based on an explicitly pinned snapshot of `rpiammocan/virtual-bartender`; changes to the CasaOS repository do **not** automatically alter this Windows application.
+This repository is intentionally separate from the CasaOS/Docker application. Windows builds are based on an explicitly pinned snapshot of `rpiammocan/virtual-bartender-casaos`; changes to the CasaOS repository do **not** automatically alter this Windows application.
 
 ## Architecture
 
@@ -39,4 +39,4 @@ The build performs four stages:
 
 ## CasaOS separation
 
-The CasaOS/Docker version remains in `rpiammocan/virtual-bartender`. Windows-specific Electron, PyInstaller, installer, and Windows path changes belong only in this repository.
+The CasaOS/Docker version remains in `rpiammocan/virtual-bartender-casaos`. Windows-specific Electron, PyInstaller, installer, and Windows path changes belong only in this repository.
