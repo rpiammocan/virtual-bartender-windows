@@ -54,12 +54,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install backend build dependencies
+      - name: Install backend and icon build dependencies
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install -r build-source/backend/requirements.txt
-          pip install pyinstaller
+          pip install pyinstaller cairosvg pillow
+
+      - name: Generate Windows application icon
+        shell: pwsh
+        run: |
+          python -c "import cairosvg; cairosvg.svg2png(url='assets/virtual-bartender-icon.svg', write_to='assets/virtual-bartender-icon.png', output_width=512, output_height=512)"
+          python -c "from PIL import Image; im=Image.open('assets/virtual-bartender-icon.png').convert('RGBA'); im.save('assets/virtual-bartender-icon.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"
 
       - name: Build standalone backend
         shell: pwsh
