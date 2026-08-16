@@ -65,7 +65,7 @@ jobs:
         shell: pwsh
         run: |
           npm install --no-save sharp png-to-ico
-          node -e "const fs=require('fs'); const sharp=require('sharp'); const pngToIco=require('png-to-ico'); (async()=>{await sharp('assets/virtual-bartender-icon.svg').resize(512,512).png().toFile('assets/virtual-bartender-icon.png'); const ico=await pngToIco('assets/virtual-bartender-icon.png'); fs.writeFileSync('assets/virtual-bartender-icon.ico',ico);})();"
+          node -e "const fs=require('fs'); const sharp=require('sharp'); const icoModule=require('png-to-ico'); const pngToIco=icoModule.default||icoModule; (async()=>{await sharp('assets/virtual-bartender-icon.svg').resize(512,512).png().toFile('assets/virtual-bartender-icon.png'); const ico=await pngToIco('assets/virtual-bartender-icon.png'); fs.writeFileSync('assets/virtual-bartender-icon.ico',ico);})();"
           if (!(Test-Path assets/virtual-bartender-icon.ico)) { throw 'Windows icon was not generated.' }
 
       - name: Build standalone backend
